@@ -1,0 +1,13 @@
+### Python template
+__pycache__/
+*.py[cod]
+*$py.class
+dist/
+
+*.log
+target/
+
+.vscode/
+.idea/
+node_modules/
+.DS_Store/
