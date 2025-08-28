@@ -32,7 +32,8 @@ export default tseslint.config(
             lang: 'ts'
           }
         }
-      ]
+      ],
+      semi: 1
     }
   },
   eslintConfigPrettier

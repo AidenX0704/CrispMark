@@ -1,7 +1,11 @@
 "use strict";
 const electron = require("electron");
 const preload = require("@electron-toolkit/preload");
-const api = {};
+const api = {
+  // 选择文件夹
+  // 选择图片
+  // 获取图片 EXIF 信息
+};
 if (process.contextIsolated) {
   try {
     electron.contextBridge.exposeInMainWorld("electron", preload.electronAPI);

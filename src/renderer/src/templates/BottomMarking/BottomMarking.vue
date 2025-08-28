@@ -1,6 +1,11 @@
 <script setup lang="ts">
+
 </script>
 
 <template>
-  <router-view />
+  <div>底部水印</div>
 </template>
+
+<style scoped>
+
+</style>
