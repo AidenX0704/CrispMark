@@ -1,11 +1,13 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
+import MainWindow from '../views/main'
 
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
         {
-            path: '/',
-            redirect: '/main'
+            path: '/main',
+            name: 'main',
+            component: MainWindow
         }
     ]
 });

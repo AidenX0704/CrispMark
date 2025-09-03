@@ -2,9 +2,10 @@
 const electron = require("electron");
 const preload = require("@electron-toolkit/preload");
 const api = {
-  // 选择文件夹
-  // 选择图片
-  // 获取图片 EXIF 信息
+  selectFolder: () => electron.ipcRenderer.invoke("folder:select"),
+  getFolderImages: (folderPath) => electron.ipcRenderer.invoke("folder:getImages", folderPath),
+  getExif: (filePath) => electron.ipcRenderer.invoke("exif:get", filePath),
+  getImageStream: (filePath) => electron.ipcRenderer.invoke("file:getStream", filePath)
 };
 if (process.contextIsolated) {
   try {
