@@ -5,9 +5,11 @@ declare global {
     electron: ElectronAPI;
     api: {
       selectFolder: () => Promise<string | null>;
-      scanFolderImages: (folderPath: string) => Promise<any>;
+      getFolderImages: (folderPath: string) => Promise<any>;
       getImageExif: (imagePath: string) => Promise<any>;
       getImageDataUrl: (imagePath: string) => Promise<any>;
+      onProgress: (callback: (event: any, data: any) => void) => void;
+      offProgress: (callback: (event: any, data: any) => void) => void;
     };
   }
 }

@@ -5,7 +5,9 @@ const api = {
   selectFolder: () => electron.ipcRenderer.invoke("folder:select"),
   getFolderImages: (folderPath) => electron.ipcRenderer.invoke("folder:getImages", folderPath),
   getExif: (filePath) => electron.ipcRenderer.invoke("exif:get", filePath),
-  getImageStream: (filePath) => electron.ipcRenderer.invoke("file:getStream", filePath)
+  getImageStream: (filePath) => electron.ipcRenderer.invoke("file:getStream", filePath),
+  onProgress: (callback) => electron.ipcRenderer.on("folder:progress", callback),
+  offProgress: (callback) => electron.ipcRenderer.off("folder:progress", callback)
 };
 if (process.contextIsolated) {
   try {

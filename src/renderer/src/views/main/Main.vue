@@ -5,9 +5,20 @@
   import PhotoTimeline from "@renderer/components/PhotoTimeline.vue";
   import usePhotoTimeline from "@renderer/hooks/photo-timeline";
   import useLeftPanel from "@renderer/hooks/left-panel";
+  import { ElProgress } from "element-plus";
+  import { watch } from "vue";
 
   const { folderPath, outputPath, template, handleSelectFolder } = useLeftPanel();
-  const { photos, selectedPhoto, handlePhotoClick } = usePhotoTimeline();
+  const { photos, selectedPhoto, handlePhotoClick, loadPhotos, progress, loading } = usePhotoTimeline();
+
+  // 监听文件夹路径变化，自动加载图片
+  watch(folderPath, (newPath) => {
+    if (newPath) {
+      loadPhotos(newPath);
+    } else {
+      photos.value = [];
+    }
+  });
 </script>
 
 <template>
@@ -24,6 +35,15 @@
         </el-aside>
         <el-main>
           <main-preview :photo="selectedPhoto || undefined" />
+
+          <!-- 加载进度条 -->
+          <div v-if="loading" class="progress-container">
+            <el-progress
+              :percentage="progress.total ? Math.round((progress.completed / progress.total) * 100) : 0"
+              :format="() => `${progress.completed}/${progress.total}`"
+            />
+            <p class="progress-text">正在加载: {{ progress.current }}</p>
+          </div>
         </el-main>
         <el-aside width="300px">
           <right-panel />
@@ -38,4 +58,24 @@
 
 <style scoped>
   @import "main.css";
+
+  .progress-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+
+  .progress-text {
+    margin: 5px 0 0 0;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+  }
 </style>

@@ -5,7 +5,9 @@ const api = {
   selectFolder: () => ipcRenderer.invoke("folder:select"),
   getFolderImages: (folderPath: string) => ipcRenderer.invoke("folder:getImages", folderPath),
   getExif: (filePath: string) => ipcRenderer.invoke("exif:get", filePath),
-  getImageStream: (filePath: string) => ipcRenderer.invoke("file:getStream", filePath)
+  getImageStream: (filePath: string) => ipcRenderer.invoke("file:getStream", filePath),
+  onProgress: (callback: (event: any, data: any) => void) => ipcRenderer.on("folder:progress", callback),
+  offProgress: (callback: (event: any, data: any) => void) => ipcRenderer.off("folder:progress", callback)
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

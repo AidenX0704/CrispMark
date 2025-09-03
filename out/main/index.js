@@ -6,7 +6,6 @@ const deepmerge = require("deepmerge");
 const fs = require("fs");
 const crypto = require("crypto");
 const sharp = require("sharp");
-const pLimit = require("p-limit");
 const ExifParser = require("exif-parser");
 const windowProfiles = {
   // --- 主窗口配置 ---
@@ -81,6 +80,7 @@ class WindowManager {
       width: 800,
       height: 600,
       show: false,
+      autoHideMenuBar: true,
       webPreferences: {
         preload: path.join(__dirname, "../preload/index.js"),
         nodeIntegration: true,
@@ -168,11 +168,34 @@ async function getThumbnail(filePath, size = 200) {
   const buffer = await sharp(filePath).resize(size).toBuffer();
   return `data:image/jpeg;base64,${buffer.toString("base64")}`;
 }
+async function runWithConcurrency(items, worker, concurrency = 5) {
+  const results = [];
+  let running = 0;
+  let currentIndex = 0;
+  return new Promise((resolve, reject) => {
+    const runNext = () => {
+      if (results.length === items.length) {
+        resolve(results);
+        return;
+      }
+      if (running >= concurrency) return;
+      const index = currentIndex++;
+      if (index >= items.length) return;
+      running++;
+      Promise.resolve(worker(items[index], index)).then((res) => {
+        results[index] = res;
+      }).catch((err) => reject(err)).finally(() => {
+        running--;
+        runNext();
+      });
+      runNext();
+    };
+    runNext();
+  });
+}
 function folderIpc() {
   electron.ipcMain.handle("folder:select", async () => {
-    const result = await electron.dialog.showOpenDialog({
-      properties: ["openDirectory"]
-    });
+    const result = await electron.dialog.showOpenDialog({ properties: ["openDirectory"] });
     if (result.canceled) return null;
     return result.filePaths[0];
   });
@@ -182,13 +205,13 @@ function folderIpc() {
     const images = files.filter((f) => /\.(jpg|jpeg|png|gif)$/i.test(f));
     const total = images.length;
     let completed = 0;
-    const limit = pLimit(5);
-    const tasks = images.map(
-      (file) => limit(async () => {
+    return await runWithConcurrency(
+      images,
+      async (file) => {
         const fullPath = path.join(folderPath, file);
         const id = await getFileMd5(fullPath);
         const thumb = await getThumbnail(fullPath, 200);
-        completed += 1;
+        completed++;
         event.sender.send("folder:progress", {
           completed,
           total,
@@ -200,9 +223,9 @@ function folderIpc() {
           name: path.parse(file).name,
           thumbnail: thumb
         };
-      })
+      },
+      5
     );
-    return Promise.all(tasks);
   });
 }
 function exifIpc() {
