@@ -4,7 +4,7 @@ import { ref } from "vue";
 export default function useLeftPanel() {
   const folderPath = ref("");
   const outputPath = ref("");
-  const template = ref("");
+  const template = ref("GaussianFuzzyMarking");
 
   // 处理文件夹选择
   const handleSelectFolder = async (): Promise<void> => {

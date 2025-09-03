@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import { computed, ref, onMounted, onUnmounted, watch } from "vue";
-  import { ElScrollbar, ElButton } from "element-plus";
   import { Photo } from "@renderer/types/photo";
 
   interface Props {

@@ -6,7 +6,7 @@ declare global {
     api: {
       selectFolder: () => Promise<string | null>;
       getFolderImages: (folderPath: string) => Promise<any>;
-      getImageExif: (imagePath: string) => Promise<any>;
+      getExif: (imagePath: string) => Promise<any>;
       getImageDataUrl: (imagePath: string) => Promise<any>;
       onProgress: (callback: (event: any, data: any) => void) => void;
       offProgress: (callback: (event: any, data: any) => void) => void;

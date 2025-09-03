@@ -6,10 +6,21 @@
   import usePhotoTimeline from "@renderer/hooks/photo-timeline";
   import useLeftPanel from "@renderer/hooks/left-panel";
   import { ElProgress } from "element-plus";
-  import { watch } from "vue";
+  import { watch, ref } from "vue";
 
   const { folderPath, outputPath, template, handleSelectFolder } = useLeftPanel();
   const { photos, selectedPhoto, handlePhotoClick, loadPhotos, progress, loading } = usePhotoTimeline();
+
+  // 水印配置
+  const watermarkConfig = ref({
+    text: "© 2025 My Photos",
+    fontSize: 16,
+    color: "white",
+    blur: 10,
+    photoBorderRadius: 15,
+    photoBoxShadow: "0 6px 16px rgba(0, 0, 0, 0.4)",
+    photoMargin: 30
+  });
 
   // 监听文件夹路径变化，自动加载图片
   watch(folderPath, (newPath) => {
@@ -34,7 +45,7 @@
           />
         </el-aside>
         <el-main>
-          <main-preview :photo="selectedPhoto || undefined" />
+          <main-preview :photo="selectedPhoto || undefined" :template="template" :watermark-config="watermarkConfig" />
 
           <!-- 加载进度条 -->
           <div v-if="loading" class="progress-container">
