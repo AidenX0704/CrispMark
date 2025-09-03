@@ -27,8 +27,8 @@
     <el-form label-width="80px">
       <el-form-item label="选择照片">
         <el-button type="primary" @click="handleSelectFolder">选择文件夹</el-button>
-        <span v-if="folderPath" style="margin-left: 8px">{{ folderPath }}</span>
       </el-form-item>
+      <span v-if="folderPath" style="margin-left: 8px">{{ folderPath }}</span>
 
       <el-form-item label="输出路径">
         <el-input :model-value="outputPath" placeholder="选择输出路径" @input="emit('update:outputPath', $event)" />
@@ -36,8 +36,8 @@
 
       <el-form-item label="水印模板">
         <el-select :model-value="template" placeholder="选择模板" @update:model-value="emit('update:template', $event)">
-          <el-option label="模板 A" value="A" />
-          <el-option label="模板 B" value="B" />
+          <el-option label="高斯模糊" value="A" />
+          <el-option label="底部水印(白色)" value="B" />
         </el-select>
       </el-form-item>
     </el-form>

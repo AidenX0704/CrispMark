@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { Photo } from "@renderer/types/photo";
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, watch } from "vue";
 
   interface Props {
     photo?: Photo;
@@ -12,6 +12,7 @@
   });
 
   const imageSrc = ref<string>("");
+  const imageAspectRatio = ref<number>(16 / 9); // 默认16:9
 
   // 默认配置
   const defaultConfig = {
@@ -43,54 +44,55 @@
       }
     }
   });
+
+  // 监听图片加载完成，获取图片原始尺寸
+  const handleImageLoad = (event: Event): void => {
+    const img = event.target as HTMLImageElement;
+    const { naturalWidth, naturalHeight } = img;
+    if (naturalWidth && naturalHeight) {
+      imageAspectRatio.value = naturalWidth / naturalHeight;
+    }
+  };
+
+  // 监听photo变化
+  watch(
+    () => props.photo,
+    async (newPhoto) => {
+      if (newPhoto) {
+        try {
+          const imageData = await window.api.getImageDataUrl(newPhoto.url);
+          imageSrc.value = `data:image/jpeg;base64,${imageData}`;
+        } catch (error) {
+          console.error("获取图片数据失败:", error);
+          imageSrc.value = `local://${newPhoto.url}`;
+        }
+      }
+    }
+  );
 </script>
 
 <template>
-  <div
-    class="gaussian-fuzzy-wrapper"
-    :style="{
-      backdropFilter: `blur(${defaultConfig.blur}px)`,
-      WebkitBackdropFilter: `blur(${defaultConfig.blur}px)`,
-      padding: defaultConfig.photoMargin + 'px',
-      width: '100%',
-      height: '100%'
-    }"
-  >
-    <!-- 照片容器 -->
+  <div class="gaussian-fuzzy-wrapper">
+    <!-- 背景模糊层 -->
     <div
-      class="photo-container"
+      class="background-blur"
       :style="{
-        borderRadius: defaultConfig.photoBorderRadius + 'px',
-        boxShadow: defaultConfig.photoBoxShadow,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column'
+        backgroundImage: `url(${imageSrc})`,
+        filter: 'blur(60px) brightness(0.3) saturate(1.2)',
+        transform: 'scale(1.1)'
       }"
-    >
-      <!-- 照片本身 -->
-      <div class="photo-wrapper">
-        <img
-          v-if="photo"
-          :src="imageSrc"
-          :alt="photo.name"
-          class="photo"
-          :style="{
-            borderRadius: defaultConfig.photoBorderRadius + 'px'
-          }"
-        />
-      </div>
+    ></div>
 
-      <!-- 底部水印信息 -->
+    <div class="gaussian-main">
       <div
-        class="watermark-text"
+        class="gaussian-container"
         :style="{
-          color: defaultConfig.color,
-          fontSize: defaultConfig.fontSize + 'px'
+          aspectRatio: imageAspectRatio
         }"
       >
-        {{ defaultConfig.text }}
+        <img :src="imageSrc" alt="高斯模糊图片" class="gaussian-photo" @load="handleImageLoad" />
       </div>
+      <div class="gaussian-photo-info"> </div>
     </div>
   </div>
 </template>
@@ -99,42 +101,64 @@
   .gaussian-fuzzy-wrapper {
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .photo-container {
     position: relative;
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-  }
-
-  .photo-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
-  }
+    font-family:
+      "PingFang SC",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+    user-select: none;
 
-  .photo {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
-    display: block;
-    object-fit: contain;
-  }
+    .background-blur {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: all 1s ease;
+      z-index: 1;
+    }
 
-  .watermark-text {
-    text-align: center;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.3);
-    font-weight: bold;
-    flex-shrink: 0;
+    .gaussian-main {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+
+      .gaussian-container {
+        position: relative;
+        max-width: 95%;
+        max-height: 80%;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow:
+          0 25px 80px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(1px);
+        z-index: 9999;
+
+        .gaussian-photo {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+      }
+    }
   }
 </style>
