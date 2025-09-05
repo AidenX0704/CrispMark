@@ -30,7 +30,6 @@
     "exiftool-vendored": "^30.4.0",
     "md5": "^2.3.0",
     "mime-types": "^3.0.1",
-    "p-limit": "^7.1.1",
     "pinia": "^3.0.3",
     "sharp": "^0.34.3",
     "vue-router": "4"
